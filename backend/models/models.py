@@ -44,7 +44,7 @@ def extract_result(input_str):
     if NOT_APPLICABLE_CODE in input_str:
         return NOT_APPLICABLE_CODE
 
-    match = re.match(r"(\d+%)(.*)", input_str)
+    match = re.search(r"(\d+)%", input_str)
     if match:
         percentage = match.group(1).strip().rstrip("%")
         return percentage
