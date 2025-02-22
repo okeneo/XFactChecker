@@ -3,7 +3,7 @@ import os
 import re
 
 from dotenv import load_dotenv
-from openai import OpenAI
+from openai import AsyncOpenAI
 
 load_dotenv()
 
@@ -21,10 +21,10 @@ SYSTEM_PROMPT = (
 )
 
 
-def fact_checker(content):
+async def fact_checker(content):
     logger.info(f'Requested text: "{content}"')
-    client = OpenAI(base_url=API_PROVIDER_URL, api_key=OPENROUTER_API_KEY)
-    completion = client.chat.completions.create(
+    client = AsyncOpenAI(base_url=API_PROVIDER_URL, api_key=OPENROUTER_API_KEY)
+    completion = await client.chat.completions.create(
         model=MODEL,
         messages=[
             {

@@ -31,12 +31,12 @@ logger = logging.getLogger(__name__)
 
 
 @app.post("/fact")
-def fact_check(payload: dict):
+async def fact_check(payload: dict):
     text = payload.get("text", "")
 
     if not text:
         raise HTTPException(status_code=400, detail="Text not provided")
 
-    response = fact_checker(text)
+    response = await fact_checker(text)
     logger.info(response)
     return {"message": response}
