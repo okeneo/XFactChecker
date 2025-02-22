@@ -17,11 +17,52 @@ const observer = new MutationObserver(() => {
         // Only log the post if it's NOT a reply
         if (post && !isReply) {
             const postText = post.innerText;
-            processPostText(postText, username, date);
-        }
 
-        if (!isExistInFactCheckRecord(name, username, date)) {
+            if (!isExistInFactCheckRecord(postText, username, date)) {
+                console.log("LOADING: " + postText);
+                processPostText(postText, username, date, article);
+            }
+        };
+    });
+});
+
+// Start observing changes in the document body (specifically child elements)
+observer.observe(document.body, {
+    childList: true,
+    subtree: true
+});
+
+function processPostText(postText, username, date, article) {
+    if (postText && postText.trim() !== "") { //check if postText is empty or null
+        const key = postText.substring(0, 15) + username + date; //the first 15 chars of the post text + username + date
+        if (!isExistInFactCheckRecord(postText, username, date)) {
+            console.log(postText);
+            sendAPI(postText, article);
+            factCheckRecord.set(key, 90);
+        }
+    }
+}
+
+function isExistInFactCheckRecord(postText, username, date) {
+    const key = postText.substring(0, 15) + username + date; //the first 15 chars of the post text + username + date
+    return factCheckRecord.has(key);
+}
+
+function sendAPI(postText, article) {
+    console.log("send API: " + postText);
+    fetch('http://localhost:8000/fact', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ text: postText }),
+    })
+        .then(response => response.json()) // Parse the JSON response
+        .then(data => {
+            console.log(postText + "got API");
+            console.log(data);
             const header = article.querySelector('.css-175oi2r.r-1awozwy.r-18u37iz.r-1cmwbt1.r-1wtj0ep');
+
             if (header) {
                 // Check if the icon is already added to avoid duplication
                 if (header.querySelector('.custom-icon')) return;
@@ -32,14 +73,18 @@ const observer = new MutationObserver(() => {
 
                 // Style the icon for better visibility
                 icon.style.cursor = "pointer";
-                icon.style.marginLeft = "8px";
-
-                header.insertAdjacentElement("afterbegin", icon)
-
+                icon.style.boxSizing = "border-box";
+                
                 // temp variable
-                let rating = 30;
+                let rating = data.message
+                
+                // Create a container for the icon, if rating is NaN it will be invisible
+                const iconContainer = document.createElement('div');
+                iconContainer.style.marginRight = "2.5px";
+                
                 // Create the popup text box
                 const popup = document.createElement("div");
+                popup.classList.add("custom-popup");
                 let boxcolor = "white";
                 switch (true) {
                     case (rating <= 20):
@@ -61,17 +106,33 @@ const observer = new MutationObserver(() => {
                         icon.innerHTML = "?";
                         icon.style.fontFamily = "Segoe UI, Helvetica, Arial, sans-serif";
                         icon.style.fontSize = "20px";
+                        iconContainer.style.marginBottom = "4px";
                         rating = "--";
                         break;
                 }
+                
                 if (!isNaN(rating)) {
-                    popup.classList.add("custom-popup");
-                    icon.style.width = rating / 5 + 'px';
+                    const desiredWidth = 30;
+                    icon.style.width = rating / 100 * desiredWidth + 'px';
                     icon.style.height = '10px';
                     icon.style.backgroundColor = boxcolor;
-                    icon.style.borderRadius = '0px';
+                    icon.style.borderRadius = '2px';
                     icon.style.position = 'relative';
+
+                    iconContainer.style.width = desiredWidth + 'px';
+                    iconContainer.style.height = '10px';
+                    iconContainer.style.border = `1.5px solid #71767B`;
+                    iconContainer.style.display = 'flex';
+                    iconContainer.style.justifyContent = 'left';
+                    iconContainer.style.alignItems = 'center';
+                    iconContainer.style.boxSizing = 'border-box';
+                    iconContainer.style.borderRadius = "2px";
+                    iconContainer.style.overflow = "hidden";
                 }
+                
+                iconContainer.appendChild(icon);
+                header.insertAdjacentElement("afterbegin", iconContainer);
+                
                 // Style the popup
                 popup.textContent = rating + "%"
                 popup.style.position = "absolute"; // Use absolute to make it scroll with content
@@ -87,7 +148,7 @@ const observer = new MutationObserver(() => {
                 popup.style.fontFamily = "Segoe UI, Helvetica, Arial, sans-serif";
 
                 // Show popup when clicking the icon
-                icon.addEventListener("click", (event) => {
+                iconContainer.addEventListener("click", (event) => {
                     event.stopPropagation(); // Prevent post's click action
 
                     // Toggle popup visibility
@@ -121,45 +182,6 @@ const observer = new MutationObserver(() => {
                 // Add the popup to the body for fixed positioning
                 document.body.appendChild(popup);
             }
-        }
-    });
-});
-
-// Start observing changes in the document body (specifically child elements)
-observer.observe(document.body, {
-    childList: true,
-    subtree: true
-});
-
-function processPostText(postText, username, date) {
-    if (postText && postText.trim() !== "") { //check if postText is empty or null
-        const key = postText.substring(0, 15) + username + date; //the first 15 chars of the post text + username + date
-        if (!isExistInFactCheckRecord(postText, username, date)) {
-            console.log(postText);
-            sendAPI(postText);
-            factCheckRecord.set(key, 90);
-        }
-    }
-}
-
-function isExistInFactCheckRecord(postText, username, date) {
-    const key = postText.substring(0, 15) + username + date; //the first 15 chars of the post text + username + date
-    return factCheckRecord.has(key);
-}
-
-function sendAPI(postText) {
-    let apiCall = fetch('http://localhost:8000/fact', {
-        method: 'POST', // Specify the request method
-        headers: {
-            'Content-Type': 'application/json', // Specify that we're sending JSON data
-        },
-        body: JSON.stringify({
-            // Replace this with the data you want to send
-            text: postText
-        })
-    }).catch(error => console.error('Error:', error)); // Handle any errors
-
-    apiCall.finally(() => {
-        return data;
-    });
+        }) 
+        .catch(error => console.error('Error:', error)); 
 }

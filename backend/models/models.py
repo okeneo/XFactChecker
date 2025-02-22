@@ -9,10 +9,10 @@ load_dotenv()
 
 logger = logging.getLogger(__name__)
 
-OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
+OPENROUTER_API_KEY = "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"
 NOT_APPLICABLE_CODE = "NOT_APPLICABLE"
 API_PROVIDER_URL = "https://openrouter.ai/api/v1"
-MODEL = "meta-llama/llama-3.3-70b-instruct:free"
+MODEL = "cognitivecomputations/dolphin3.0-r1-mistral-24b:free"
 SYSTEM_PROMPT = (
     "You are a fact checking assistant. Use reliable, evidence-based sources. "
     "You give only the percentage on how true a statement is. "
