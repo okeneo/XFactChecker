@@ -58,7 +58,7 @@ const observer = new MutationObserver(() => {
                 header.insertAdjacentElement("afterbegin", iconContainer);
 
                 // Style the popup
-                popup.textContent = rating + "%"
+                popup.textContent = "Accuracy Unconfirmed";
                 popup.style.position = "absolute"; // Use absolute to make it scroll with content
                 popup.style.background = "#333";
                 popup.style.padding = "5px 10px";
@@ -72,28 +72,17 @@ const observer = new MutationObserver(() => {
                 popup.style.fontFamily = "Segoe UI, Helvetica, Arial, sans-serif";
 
                 // Show popup when clicking the icon
-                iconContainer.addEventListener("click", (event) => {
-                    event.stopPropagation(); // Prevent post's click action
-
-                    // Toggle popup visibility
-                    if (popup.style.display === "block") {
-                        popup.style.display = "none"; // Hide the popup if it's visible
-                    } else {
-                        popup.style.display = "block"; // Show the popup
-                        const rect = event.target.getBoundingClientRect();
-                        popup.style.top = (rect.top + window.scrollY - 40) + "px"; // Adjust for scrolling (40px above the icon)
-                        popup.style.left = (rect.left + window.scrollX + rect.width / 2) + "px"; // Center horizontally
-                        popup.style.transform = "translateX(-50%)";
-                    }
+                icon.addEventListener("mouseenter", (event) => {
+                    popup.style.display = "block"; // Show the popup
+                    const rect = event.target.getBoundingClientRect();
+                    popup.style.top = (rect.top + window.scrollY - 40) + "px"; // Adjust for scrolling (40px above the icon)
+                    popup.style.left = (rect.left + window.scrollX + rect.width / 2) + "px"; // Center horizontally
+                    popup.style.transform = "translateX(-50%)";
                 });
-
-                // Hide the popup when clicking anywhere outside of it or the icon
-                document.addEventListener("click", (event) => {
-                    if (!header.contains(event.target) && !popup.contains(event.target)) {
-                        popup.style.display = "none"; // Hide the popup if clicked outside
-                    }
+                iconContainer.addEventListener("mouseleave", (event) => {
+                    popup.style.display = "none";
                 });
-
+v
                 // Scroll handling: Update popup position when page is scrolled
                 window.addEventListener("scroll", () => {
                     if (popup.style.display === "block") {
@@ -231,7 +220,7 @@ function sendAPI(postText, article) {
                 header.insertAdjacentElement("afterbegin", iconContainer);
 
                 // Style the popup
-                popup.textContent = rating + "%"
+                popup.textContent = (!isNaN(rating)?rating + "%":"Accuracy Unconfirmed");
                 popup.style.position = "absolute"; // Use absolute to make it scroll with content
                 popup.style.background = "#333";
                 popup.style.padding = "5px 10px";
@@ -245,27 +234,16 @@ function sendAPI(postText, article) {
                 popup.style.fontFamily = "Segoe UI, Helvetica, Arial, sans-serif";
 
                 // Show popup when clicking the icon
-                iconContainer.addEventListener("click", (event) => {
-                    event.stopPropagation(); // Prevent post's click action
-
-                    // Toggle popup visibility
-                    if (popup.style.display === "block") {
-                        popup.style.display = "none"; // Hide the popup if it's visible
-                    } else {
-                        popup.style.display = "block"; // Show the popup
-                        const rect = event.target.getBoundingClientRect();
-                        popup.style.top = (rect.top + window.scrollY - 40) + "px"; // Adjust for scrolling (40px above the icon)
-                        popup.style.left = (rect.left + window.scrollX + rect.width / 2) + "px"; // Center horizontally
-                        popup.style.transform = "translateX(-50%)";
-                    }
+                iconContainer.addEventListener("mouseenter", (event) => {
+                    popup.style.display = "block"; // Show the popup
+                    const rect = event.target.getBoundingClientRect();
+                    popup.style.top = (rect.top + window.scrollY - 40) + "px"; // Adjust for scrolling (40px above the icon)
+                    popup.style.left = (rect.left + window.scrollX + rect.width / 2) + "px"; // Center horizontally
+                    popup.style.transform = "translateX(-50%)";
                 });
-
-                // Hide the popup when clicking anywhere outside of it or the icon
-                document.addEventListener("click", (event) => {
-                    if (!header.contains(event.target) && !popup.contains(event.target)) {
-                        popup.style.display = "none"; // Hide the popup if clicked outside
-                    }
-                });
+                iconContainer.addEventListener("mouseleave", (event) => {
+                    popup.style.display = "none";
+                })
 
                 // Scroll handling: Update popup position when page is scrolled
                 window.addEventListener("scroll", () => {
