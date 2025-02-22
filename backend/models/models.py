@@ -34,13 +34,13 @@ def fact_checker(content):
             {"role": "user", "content": content},
         ],
     )
-    if completion:
-        if len(completion.choices) > 0:
-            message = completion.choices[0].message
-            logger.info(message)
-            result = extract_result(message.content)
-            return result
-    return None
+    if not completion or not completion.choices or len(completion.choices) == 0:
+        return None
+
+    message = completion.choices[0].message
+    logger.info(message)
+    result = extract_result(message.content)
+    return result
 
 
 def extract_result(input_str):
