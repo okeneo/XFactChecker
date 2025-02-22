@@ -46,7 +46,6 @@ const observer = new MutationObserver(() => {
     });
 });
 
-
 // Start observing changes in the document body (specifically child elements)
 observer.observe(document.body, {
     childList: true,
