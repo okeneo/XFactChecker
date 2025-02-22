@@ -18,10 +18,11 @@ const observer = new MutationObserver(() => {
         if (post && !isReply) {
             const postText = post.innerText;
             if (!isExistInFactCheckRecord(postText, username, date)) {
-                console.log("LOADING: " + postText);
                 processPostText(postText, username, date, article);
             }
         } else {
+            console.log(post ? post.innerText : "No post text found");
+            console.log("HLAOHNJUIAOHNJUASHNDJUASHND");
             //add "?" when it is empty
             const header = article.querySelector('.css-175oi2r.r-1awozwy.r-18u37iz.r-1cmwbt1.r-1wtj0ep');
 
@@ -36,9 +37,6 @@ const observer = new MutationObserver(() => {
                 // Style the icon for better visibility
                 icon.style.cursor = "pointer";
                 icon.style.boxSizing = "border-box";
-
-                // temp variable
-                // let rating = not;
 
                 // Create a container for the icon, if rating is NaN it will be invisible
                 const iconContainer = document.createElement('div');
@@ -82,7 +80,7 @@ const observer = new MutationObserver(() => {
                 iconContainer.addEventListener("mouseleave", (event) => {
                     popup.style.display = "none";
                 });
-v
+
                 // Scroll handling: Update popup position when page is scrolled
                 window.addEventListener("scroll", () => {
                     if (popup.style.display === "block") {
@@ -97,7 +95,6 @@ v
             }
 
             if (!isExistInFactCheckRecord(postText, username, date)) {
-                console.log("LOADING: " + postText);
                 processPostText(postText, username, date, article);
             }
         };
@@ -127,7 +124,22 @@ function isExistInFactCheckRecord(postText, username, date) {
 }
 
 function sendAPI(postText, article) {
-    console.log("send API: " + postText);
+    // Insert placeholder
+    const header = article.querySelector('.css-175oi2r.r-1awozwy.r-18u37iz.r-1cmwbt1.r-1wtj0ep');
+    if (header) {
+        // Check if the icon is already added to avoid duplication
+        if (header.querySelector('.custom-icon')) return;
+
+        // Create the placeholder icon element
+        const placeholderIcon = document.createElement("span");
+        placeholderIcon.classList.add("custom-icon");
+        placeholderIcon.innerHTML = "Loading...";
+        placeholderIcon.style.fontFamily = "Segoe UI, Helvetica, Arial, sans-serif";
+        placeholderIcon.style.fontSize = "14px";
+        placeholderIcon.style.color = "#71767B";
+        header.insertAdjacentElement("afterbegin", placeholderIcon);
+    }
+
     fetch('http://localhost:8000/fact', {
         method: 'POST',
         headers: {
@@ -138,12 +150,15 @@ function sendAPI(postText, article) {
         .then(response => response.json()) // Parse the JSON response
         .then(data => {
             console.log(postText + "got API");
-            console.log(data);
+            console.log("[LOG] API Response: ", postText, data.message);
             const header = article.querySelector('.css-175oi2r.r-1awozwy.r-18u37iz.r-1cmwbt1.r-1wtj0ep');
 
             if (header) {
-                // Check if the icon is already added to avoid duplication
-                if (header.querySelector('.custom-icon')) return;
+                // Remove the placeholder icon
+                const placeholderIcon = header.querySelector('.custom-icon');
+                if (placeholderIcon) {
+                    placeholderIcon.remove();
+                }
 
                 // Create the icon element
                 const icon = document.createElement("span");
