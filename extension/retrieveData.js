@@ -158,4 +158,8 @@ function sendAPI(postText) {
             text: postText
         })
     }).catch(error => console.error('Error:', error)); // Handle any errors
+
+    apiCall.finally(() => {
+        return data;
+    });
 }
