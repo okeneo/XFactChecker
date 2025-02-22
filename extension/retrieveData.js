@@ -17,6 +17,95 @@ const observer = new MutationObserver(() => {
         // Only log the post if it's NOT a reply
         if (post && !isReply) {
             const postText = post.innerText;
+            if (!isExistInFactCheckRecord(postText, username, date)) {
+                console.log("LOADING: " + postText);
+                processPostText(postText, username, date, article);
+            }
+        } else {
+            //add "?" when it is empty
+            const header = article.querySelector('.css-175oi2r.r-1awozwy.r-18u37iz.r-1cmwbt1.r-1wtj0ep');
+
+            if (header) {
+                // Check if the icon is already added to avoid duplication
+                if (header.querySelector('.custom-icon')) return;
+
+                // Create the icon element
+                const icon = document.createElement("span");
+                icon.classList.add("custom-icon");
+
+                // Style the icon for better visibility
+                icon.style.cursor = "pointer";
+                icon.style.boxSizing = "border-box";
+
+                // temp variable
+                // let rating = not;
+
+                // Create a container for the icon, if rating is NaN it will be invisible
+                const iconContainer = document.createElement('div');
+                iconContainer.style.marginRight = "2.5px";
+
+                // Create the popup text box
+                const popup = document.createElement("div");
+                popup.classList.add("custom-popup");
+                let boxcolor = "white";
+                icon.innerHTML = "?";
+                icon.style.fontFamily = "Segoe UI, Helvetica, Arial, sans-serif";
+                icon.style.fontSize = "20px";
+                iconContainer.style.marginBottom = "4px";
+                rating = "--";
+
+                iconContainer.appendChild(icon);
+                header.insertAdjacentElement("afterbegin", iconContainer);
+
+                // Style the popup
+                popup.textContent = rating + "%"
+                popup.style.position = "absolute"; // Use absolute to make it scroll with content
+                popup.style.background = "#333";
+                popup.style.padding = "5px 10px";
+                popup.style.borderRadius = "5px";
+                popup.style.whiteSpace = "nowrap";
+                popup.style.zIndex = "1";
+                popup.style.display = "none"; // Initially hidden
+                popup.style.fontSize = "14px";
+                popup.style.pointerEvents = "none"; // Ignore mouse events for better UX
+                popup.style.boxShadow = "0 4px 8px rgba(0, 0, 0, 0.2)";
+                popup.style.fontFamily = "Segoe UI, Helvetica, Arial, sans-serif";
+
+                // Show popup when clicking the icon
+                iconContainer.addEventListener("click", (event) => {
+                    event.stopPropagation(); // Prevent post's click action
+
+                    // Toggle popup visibility
+                    if (popup.style.display === "block") {
+                        popup.style.display = "none"; // Hide the popup if it's visible
+                    } else {
+                        popup.style.display = "block"; // Show the popup
+                        const rect = event.target.getBoundingClientRect();
+                        popup.style.top = (rect.top + window.scrollY - 40) + "px"; // Adjust for scrolling (40px above the icon)
+                        popup.style.left = (rect.left + window.scrollX + rect.width / 2) + "px"; // Center horizontally
+                        popup.style.transform = "translateX(-50%)";
+                    }
+                });
+
+                // Hide the popup when clicking anywhere outside of it or the icon
+                document.addEventListener("click", (event) => {
+                    if (!header.contains(event.target) && !popup.contains(event.target)) {
+                        popup.style.display = "none"; // Hide the popup if clicked outside
+                    }
+                });
+
+                // Scroll handling: Update popup position when page is scrolled
+                window.addEventListener("scroll", () => {
+                    if (popup.style.display === "block") {
+                        const rect = icon.getBoundingClientRect();
+                        popup.style.top = (rect.top + window.scrollY - 40) + "px"; // Adjust for scroll position
+                        popup.style.left = (rect.left + window.scrollX + rect.width / 2) + "px"; // Center horizontally
+                    }
+                });
+
+                // Add the popup to the body for fixed positioning
+                document.body.appendChild(popup);
+            }
 
             if (!isExistInFactCheckRecord(postText, username, date)) {
                 console.log("LOADING: " + postText);
@@ -74,19 +163,27 @@ function sendAPI(postText, article) {
                 // Style the icon for better visibility
                 icon.style.cursor = "pointer";
                 icon.style.boxSizing = "border-box";
-                
+
                 // temp variable
                 let rating = data.message
-                
+
                 // Create a container for the icon, if rating is NaN it will be invisible
                 const iconContainer = document.createElement('div');
                 iconContainer.style.marginRight = "2.5px";
-                
+
                 // Create the popup text box
                 const popup = document.createElement("div");
                 popup.classList.add("custom-popup");
                 let boxcolor = "white";
+
                 switch (true) {
+                    case (rating === null):
+                        icon.innerHTML = "?";
+                        icon.style.fontFamily = "Segoe UI, Helvetica, Arial, sans-serif";
+                        icon.style.fontSize = "20px";
+                        iconContainer.style.marginBottom = "4px";
+                        rating = "--";
+                        break;
                     case (rating <= 20):
                         boxcolor = "red"
                         break;
@@ -110,10 +207,10 @@ function sendAPI(postText, article) {
                         rating = "--";
                         break;
                 }
-                
-                if (!isNaN(rating)) {
+
+                if (rating !== null && !isNaN(rating)) {
                     const desiredWidth = 30;
-                    icon.style.width = rating / 100 * desiredWidth + 'px';
+                    icon.style.width = Math.max(rating, 5) / 100 * desiredWidth + 'px';
                     icon.style.height = '10px';
                     icon.style.backgroundColor = boxcolor;
                     icon.style.borderRadius = '2px';
@@ -129,10 +226,10 @@ function sendAPI(postText, article) {
                     iconContainer.style.borderRadius = "2px";
                     iconContainer.style.overflow = "hidden";
                 }
-                
+
                 iconContainer.appendChild(icon);
                 header.insertAdjacentElement("afterbegin", iconContainer);
-                
+
                 // Style the popup
                 popup.textContent = rating + "%"
                 popup.style.position = "absolute"; // Use absolute to make it scroll with content
@@ -182,6 +279,6 @@ function sendAPI(postText, article) {
                 // Add the popup to the body for fixed positioning
                 document.body.appendChild(popup);
             }
-        }) 
-        .catch(error => console.error('Error:', error)); 
+        })
+        .catch(error => console.error('Error:', error));
 }
