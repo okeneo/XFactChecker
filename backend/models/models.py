@@ -9,7 +9,7 @@ load_dotenv()
 
 logger = logging.getLogger(__name__)
 
-OPENROUTER_API_KEY = os.getenv("OPENROUTER_KEY")
+OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
 NOT_APPLICABLE_CODE = "NOT_APPLICABLE"
 API_PROVIDER_URL = "https://openrouter.ai/api/v1"
 MODEL = "meta-llama/llama-3.3-70b-instruct:free"
