@@ -124,6 +124,7 @@ function isExistInFactCheckRecord(postText, username, date) {
 }
 
 function sendAPI(postText, article) {
+    console.log("processing SEDNGIN api "+postText);
     // Insert placeholder
     const header = article.querySelector('.css-175oi2r.r-1awozwy.r-18u37iz.r-1cmwbt1.r-1wtj0ep');
     if (header) {
@@ -179,7 +180,7 @@ function sendAPI(postText, article) {
                 const popup = document.createElement("div");
                 popup.classList.add("custom-popup");
                 let boxcolor = "white";
-
+                console.log("Rating: "+rating+" "+(rating===null));
                 switch (true) {
                     case (rating === null):
                         icon.innerHTML = "?";
@@ -204,6 +205,7 @@ function sendAPI(postText, article) {
                         boxcolor = "chartreuse";
                         break;
                     default:
+                        console.log("AHHHHHHHHH");
                         icon.innerHTML = "?";
                         icon.style.fontFamily = "Segoe UI, Helvetica, Arial, sans-serif";
                         icon.style.fontSize = "20px";
@@ -230,7 +232,8 @@ function sendAPI(postText, article) {
                     iconContainer.style.borderRadius = "2px";
                     iconContainer.style.overflow = "hidden";
                 }
-
+                console.log(icon.innerHTML);
+                console.log(header===undefined);
                 iconContainer.appendChild(icon);
                 header.insertAdjacentElement("afterbegin", iconContainer);
 
